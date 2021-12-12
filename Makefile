@@ -5,5 +5,5 @@ SRC=src/main.c
 
 layout: $(SRC)
 	$(CC) $(CFLAGS) -o layout $(SRC) $(LIBS)
-	
-
+clean:
+	rm layout
