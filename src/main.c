@@ -1,63 +1,32 @@
-/*******************************************************************************************
-*
-*   raylib [core] example - Basic window
-*
-*   Welcome to raylib!
-*
-*   To test examples, just press F6 and execute raylib_compile_execute script
-*   Note that compiled executable is placed in the same folder as .c file
-*
-*   You can find all basic examples on C:\raylib\raylib\examples folder or
-*   raylib official webpage: www.raylib.com
-*
-*   Enjoy using raylib. :)
-*
-*   This example has been created using raylib 1.0 (www.raylib.com)
-*   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
-*
-*   Copyright (c) 2013-2016 Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
-
 #include "raylib.h"
 
 int main(void)
 {
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+	const int screenWidth = 800;
+	const int screenHeight = 450;
+	
+	InitWindow(screenWidth, screenHeight, "simple rectangle");
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+	Rectangle rec = {100, 100, 200, 80};
+	Color rec_color = RAYWHITE;
+	Vector2 mouse_pos = {0};
+	
+	SetTargetFPS(60);
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+	while (!WindowShouldClose()) {
+		mouse_pos = GetMousePosition();
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+			rec.x = mouse_pos.x;
+			rec.y = mouse_pos.y;
+			rec_color = DARKBLUE;
+		}
+		
+		BeginDrawing();
+		ClearBackground(RAYWHITE);
+		DrawRectangle(rec.x - rec.width/2, rec.y - rec.height/2, rec.width, rec.height, rec_color);
+		EndDrawing();
+	}
 
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-        // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
-
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
-
-            ClearBackground(RAYWHITE);
-
-            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-
-        EndDrawing();
-        //----------------------------------------------------------------------------------
-    }
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
-    return 0;
+	CloseWindow();
+	return 0;
 }
-
