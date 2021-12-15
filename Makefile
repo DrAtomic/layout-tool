@@ -1,6 +1,6 @@
 CC?=gcc
-CFLAGS=-Wall -Wextra -Wshadow -std=c11 -pedantic -ggdb
-LIBS=-lraylib
+CFLAGS=-Wall -Wextra -std=c11 -ggdb
+LIBS=-lraylib -lm -ldl -lpthread
 SRC=src/main.c
 
 layout: $(SRC)
