@@ -6,9 +6,9 @@
 #include "types.h"
 
 #define MOUSE_SCALE_MARK_SIZE   12
+#define MAX_BOX                 200
 
-
-void draw_gui(void)
+void draw_gui(int *rec_count)
 {
         DrawLine(500, 0, 500, GetScreenHeight(), Fade(LIGHTGRAY, 0.6f));
         DrawRectangle(500,
@@ -16,62 +16,30 @@ void draw_gui(void)
 		      GetScreenWidth() - 500,
 		      GetScreenHeight(),
 		      Fade(LIGHTGRAY, 0.3f));
+	if(GuiButton((Rectangle){600,155,62,20}, "create rec"))
+		(*rec_count)++;
+	//if(GuiButton((Rectangle){600,180,62,20}, "darkblue"))
 }
 
 
-void draw_rec(Rec_t rec)
+void draw_rec(Rec_t *rec)
 {
-	rec.pos.x = 100;
-	rec.pos.y = 100;
-	rec.pos.width = 200;
-	rec.pos.height = 80;
-	rec.color = DARKBLUE;
-	
-	DrawRectangle(rec.pos.x - rec.pos.width/2,
-		      rec.pos.y - rec.pos.height/2,
-		      rec.pos.width, rec.pos.height,
-		      rec.color);
-}
-
-bool rec_button(void)
-{
-	bool button_click;
-	button_click = GuiButton((Rectangle){600,155,62,20}, "create rec");
-	return button_click;
+	DrawRectangleRec(rec->pos,rec->color);
 }
 
 
-void chagnge_rec_width(Rec_t rec, Mouse_t mouse)
+bool check_collision(Rec_t rec, Mouse_t mouse)
 {
-	
-	if (CheckCollisionPointRec(mouse.pos, rec.pos) &&
-            CheckCollisionPointRec(mouse.pos,
-				   (Rectangle){ rec.pos.x + rec.pos.width - MOUSE_SCALE_MARK_SIZE,
-						   rec.pos.y + rec.pos.height - MOUSE_SCALE_MARK_SIZE,
-						   MOUSE_SCALE_MARK_SIZE,
-						   MOUSE_SCALE_MARK_SIZE })){
+	bool collision;
+	collision = CheckCollisionPointRec(mouse.pos, rec.pos);
+	return collision;
+}
 
-		mouse.scale = true;
-		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-			mouse.mode = true;
-	}
-	else
-		mouse.scale = false;
-	
-	if (mouse.scale){
-		mouse.scale = true;
-
-		rec.pos.width = mouse.pos.x - rec.pos.x;
-		rec.pos.height = mouse.pos.y - rec.pos.y;
-
-		if (rec.pos.width < MOUSE_SCALE_MARK_SIZE)
-			rec.pos.width = MOUSE_SCALE_MARK_SIZE;
-		if (rec.pos.height < MOUSE_SCALE_MARK_SIZE)
-			rec.pos.height = MOUSE_SCALE_MARK_SIZE;
-		if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
-			mouse.mode = false;
-	}
-	
+void highlight_box(Rec_t rec)
+{
+	DrawRectangleLinesEx(rec.pos, 3, RED);
+	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+		DrawRectangleLinesEx(rec.pos, 3, BLUE);
 }
 
 int main(void)
@@ -82,32 +50,43 @@ int main(void)
 	
 	InitWindow(screenWidth, screenHeight, "simple gui");
 		
-	Rec_t rec;
 	Mouse_t mouse;
-	bool btn_press = false;
-	bool btn_has_been_press;
+	Rec_t *recs = (Rec_t *)malloc(MAX_BOX*sizeof(Rec_t));
+	int rec_count = 0;
+	
 	SetTargetFPS(60);
-
-	while (!WindowShouldClose()) {
+	
+	 while (!WindowShouldClose()) { 
 		mouse.pos = GetMousePosition();
+		
+		DrawText(TextFormat("rec count: %d", rec_count), 120, 10, 20, GREEN);
+		
+		if (rec_count > -1){
+			recs[rec_count].pos = (Rectangle) {100,100,200,80};
+			if (rec_count == 0)
+				recs[rec_count].color = DARKBLUE;
+			else
+				recs[rec_count].color = DARKBROWN;
+		}
+
+		for (int i = 0; i < rec_count; i++){
+			check_collision(recs[i], mouse);
+		}
 		
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
 		
-		draw_gui();
-		btn_press = rec_button();
-		if (btn_press)
-			btn_has_been_press = true;
-		if(btn_has_been_press)
-			draw_rec(rec);
-		
-		if (mouse.scale){
-			DrawRectangleLinesEx(rec.pos, 1, RED);
+		draw_gui(&rec_count);
+		for (int i = 0; i < rec_count; i++){
+			draw_rec(&recs[i]);
+			if (check_collision(recs[i], mouse)) 
+				highlight_box(recs[i]);
 			
 		}
+		
 		EndDrawing();
 	}
-
-	CloseWindow();
-	return 0;
+	 free(recs);
+	 CloseWindow();
+	 return 0;
 }

@@ -8,4 +8,3 @@ typedef struct Mouse {
 	bool scale;
 	bool mode;
 } Mouse_t;
-
